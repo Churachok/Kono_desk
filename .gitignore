@@ -1,0 +1,6 @@
+*.o
+kono
+prot
+out.txt
+protocols/*-protocol.h
+protocols/*-protocol.c

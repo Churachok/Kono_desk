@@ -1,0 +1,38 @@
+#!/bin/sh
+# Login-session wrapper for the Kono compositor (SDDM / TTY).
+export XDG_CURRENT_DESKTOP=Kono
+export XDG_SESSION_DESKTOP=Kono
+export XDG_SESSION_TYPE=wayland
+export DESKTOP_SESSION=Kono
+export XCURSOR_THEME="${XCURSOR_THEME:-Adwaita}"
+export XCURSOR_SIZE="${XCURSOR_SIZE:-24}"
+export WLR_RENDERER="${WLR_RENDERER:-gles2}"
+
+# SDDM must start a real DRM session, not a nested compositor.
+unset WAYLAND_DISPLAY
+unset WAYLAND_SOCKET
+
+statedir="${XDG_STATE_HOME:-$HOME/.local/state}/kono"
+mkdir -p "$statedir"
+log="$statedir/kono.log"
+echo "---- $(date -Iseconds) starting Kono ----" >>"$log"
+
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+for candidate in "$here/kono" /usr/local/bin/kono /home/kirill/Kono/kono; do
+	if [ -x "$candidate" ]; then
+		bin=$candidate
+		break
+	fi
+done
+if [ -z "${bin:-}" ]; then
+	bin=$(command -v kono || true)
+fi
+if [ ! -x "$bin" ]; then
+	echo "kono binary not found" >>"$log"
+	exit 1
+fi
+
+if [ -z "$DBUS_SESSION_BUS_ADDRESS" ] && command -v dbus-run-session >/dev/null 2>&1; then
+	exec dbus-run-session -- "$bin" >>"$log" 2>&1
+fi
+exec "$bin" >>"$log" 2>&1

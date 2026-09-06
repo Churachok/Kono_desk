@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Kono
+Comment=Kono Wayland compositor
+Exec=/usr/local/bin/kono-session
+Type=Application
+DesktopNames=Kono
+Keywords=tiling;wayland;compositor;
